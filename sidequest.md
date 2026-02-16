@@ -1,9 +1,9 @@
 # Sidequest (possible future improvements)
-- [ ] use iota for token values instead of string
 - [ ] attach filename, line and column number to token for better error handling
 - [ ] refactor lexer test so them don't stop at first failure
-- [ ] add support for unicode
+- [ ] add support for unicode (currently lexer uses char, we would need to use rune)
 - [ ] merge readIdentifier and readNumber into a single function readWord(identityFn fn(ch byte) bool)
 - [ ] handle float
 - [ ] handle hex numbers
 - [ ] add support for <= and >=
+- [ ] refactor parser into digestable size file
