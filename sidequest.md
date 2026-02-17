@@ -7,3 +7,4 @@
 - [ ] handle hex numbers
 - [ ] add support for <= and >=
 - [ ] make the semicolon at end of line optionnal
+- [ ] add postfix operators (eg, ++, --)
