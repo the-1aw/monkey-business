@@ -7,3 +7,5 @@
 - [ ] handle hex numbers
 - [ ] add support for <= and >=
 - [ ] refactor parser into digestable size file
+- [ ] refactor ast into digestable size file
+- [ ] make the semicolon at end of line optionnal
