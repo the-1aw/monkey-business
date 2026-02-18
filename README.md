@@ -1,10 +1,10 @@
 # Monkey Business
 
-Monkey Business is a toolchain for the [Monkey programming language](https://monkeylang.org/) reated by [Thorsten Ball](https://thorstenball.com/).  
+Monkey Business is a toolchain for the [Monkey programming language](https://monkeylang.org/) created by [Thorsten Ball](https://thorstenball.com/).  
 
 ## Why Monkey Business ?
 
-These sole purpose of this toolchain is to improve my knowledge of go and how programming languages works.
+The sole purpose of this toolchain is to improve my knowledge of go and how programming languages toolchains' work.
 
 ## Usage
 
