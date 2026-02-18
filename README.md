@@ -22,3 +22,5 @@ This part list topics I don't want to dive into straight away, as my main goal i
 - [ ] make the semicolon at end of line optionnal
 - [ ] add postfix operators (eg, ++, --)
 - [ ] update parser testing functions in order to make it easier to add test cases for each expression types
+- [ ] implement a language server for monkey
+- [ ] implement a debbuger adapter for monkey
