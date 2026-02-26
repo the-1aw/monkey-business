@@ -8,7 +8,7 @@ import (
 	"github.com/the-1aw/monkey-business/lexer"
 )
 
-func TestLestStatements(t *testing.T) {
+func TestLetStatements(t *testing.T) {
 	tests := []struct {
 		input              string
 		expectedIdentifier string
@@ -32,6 +32,10 @@ func TestLestStatements(t *testing.T) {
 		}
 		stmt := program.Statements[0]
 		if !testLetStatement(t, stmt, test.expectedIdentifier) {
+			return
+		}
+		value := stmt.(*ast.LetStatement).Value
+		if !testLiteralExpression(t, value, test.expectedValue) {
 			return
 		}
 	}
@@ -65,6 +69,10 @@ func TestReturnStatements(t *testing.T) {
 		}
 		if returnStmt.TokenLiteral() != "return" {
 			t.Errorf("returnStmt.TokenLIteral not 'return', got %q", returnStmt.TokenLiteral())
+		}
+		value := returnStmt.ReturnValue
+		if !testLiteralExpression(t, value, test.expectedValue) {
+			return
 		}
 	}
 }
