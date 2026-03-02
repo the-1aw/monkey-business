@@ -4,7 +4,8 @@ Monkey Business is a toolchain for the [Monkey programming language](https://mon
 
 ## Why Monkey Business ?
 
-The sole purpose of this toolchain is to improve my knowledge of go and how programming languages toolchains' work.
+The sole purpose of this toolchain is to improve my knowledge of go and how programming languages toolchains' work.  
+**This MUST NOT be considered production-ready under any circumstances.**
 
 ## Usage
 
