@@ -25,4 +25,5 @@ This part list topics I don't want to dive into straight away, as my main goal i
 - [ ] implement a language server for monkey
 - [ ] implement a debbuger adapter for monkey
 - [ ] add support for else if
-- [ ] add suppoer for switch statement
+- [ ] add support for switch statement
+- [ ] look into the ability to build a module in wasm to run the interpreter in the browser
