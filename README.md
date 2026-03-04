@@ -13,7 +13,8 @@ The sole purpose of this toolchain is to improve my knowledge of go and how prog
 
 This part list topics I don't want to dive into straight away, as my main goal is to have a working interpreter and compiler.
 
-- [ ] attach filename, line and column number to token for better error handling
+- [ ] attach filename, line and column number to token for better parser error handling
+- [ ] add stack trace to the interpreter error
 - [ ] refactor lexer test so them don't stop at first failure
 - [ ] add support for unicode (currently lexer uses char, we would need to use rune)
 - [ ] merge readIdentifier and readNumber into a single function readWord(identityFn fn(ch byte) bool)
