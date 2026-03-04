@@ -21,7 +21,6 @@ This part list topics I don't want to dive into straight away, as my main goal i
 - [ ] handle float
 - [ ] handle hex numbers
 - [ ] add support for <= and >=
-- [ ] make the semicolon at end of line optionnal
 - [ ] add postfix operators (eg, ++, --)
 - [x] update parser testing functions in order to make it easier to add test cases for each expression types
 - [ ] implement a language server for monkey
