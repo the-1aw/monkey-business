@@ -8,6 +8,34 @@ import (
 	"github.com/the-1aw/monkey-business/parser"
 )
 
+func TestStringComparison(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected bool
+	}{
+		{`"Hell" != "Hello"`, true},
+		{`"Hello" != "Hello"`, false},
+		{`"Hell" == "Hello"`, false},
+		{`"Hello" == "Hello"`, true},
+	}
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testBooleanObject(t, evaluated, tt.expected)
+	}
+}
+
+func TestStringConcatenation(t *testing.T) {
+	input := `"Hello" + " " + "World!"`
+	evaluated := testEval(input)
+	str, ok := evaluated.(*object.String)
+	if !ok {
+		t.Fatalf("object is not String. got=%T (%+v)", evaluated, evaluated)
+	}
+	if str.Value != "Hello World!" {
+		t.Errorf("String has wrong value. got=%q", str.Value)
+	}
+}
+
 func TestStringLiteral(t *testing.T) {
 	input := `"Hello world!"`
 
@@ -228,6 +256,7 @@ func TestErrorHandling(t *testing.T) {
 			return 1;
 		}`, "unknown operator: BOOLEAN + BOOLEAN"},
 		{"foobar", "identifier not found: foobar"},
+		{`"Hello" - "World"`, "unknown operator: STRING - STRING"},
 	}
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
@@ -295,7 +324,7 @@ func testBooleanObject(t *testing.T, obj object.Object, expected bool) bool {
 		return false
 	}
 	if result.Value != expected {
-		t.Errorf("boolean objec has wrong value. got=%t, want=%t", result.Value, expected)
+		t.Errorf("boolean object has wrong value. got=%t, want=%t", result.Value, expected)
 		return false
 	}
 	return true
