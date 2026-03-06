@@ -27,4 +27,6 @@ This part list topics I don't want to dive into straight away, as my main goal i
 - [ ] implement a debbuger adapter for monkey
 - [ ] add support for else if
 - [ ] add support for switch statement
+- [ ] add looping/iteration support 
+- [ ] look into the ability to use a more idiomatic error handling instead of isError function
 - [ ] look into the ability to build a module in wasm to run the interpreter in the browser
