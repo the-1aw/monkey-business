@@ -13,6 +13,7 @@ type ObjectType string
 const (
 	INTEGER_OBJ      ObjectType = "INTEGER"
 	BOOLEAN_OBJ      ObjectType = "BOOLEAN"
+	STRING_OBJ       ObjectType = "STRING"
 	NULL_OBJ         ObjectType = "NULL"
 	RETURN_VALUE_OBJ ObjectType = "RETURN_VALUE"
 	ERROR_OBJ        ObjectType = "ERROR"
@@ -23,6 +24,13 @@ type Object interface {
 	Type() ObjectType
 	Inspect() string
 }
+
+type String struct {
+	Value string
+}
+
+func (s *String) Inspect() string  { return s.Value }
+func (s *String) Type() ObjectType { return STRING_OBJ }
 
 type Integer struct {
 	Value int64
