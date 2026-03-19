@@ -55,6 +55,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.SLASH, p.parseInfixExpression)
 	p.registerInfix(token.ASTERISK, p.parseInfixExpression)
 	p.registerInfix(token.LPAREN, p.parseCallExpression)
+	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
 
 	p.nextToken()
 	p.nextToken()
@@ -165,10 +166,10 @@ const (
 	PRODUCT     // * , /
 	PREFIX      // -x , !x
 	CALL        // myFunc(x)
+	INDEX       // array[x], hashmap["foo"]
 )
 
 var precedences = map[token.TokenType]PrecedenceLevel{
-	token.LPAREN:   CALL,
 	token.EQ:       EQUALS,
 	token.NOT_EQ:   EQUALS,
 	token.LT:       LESSGREATER,
@@ -177,6 +178,8 @@ var precedences = map[token.TokenType]PrecedenceLevel{
 	token.MINUS:    SUM,
 	token.SLASH:    PRODUCT,
 	token.ASTERISK: PRODUCT,
+	token.LPAREN:   CALL,
+	token.LBRACKET: INDEX,
 }
 
 func (p *Parser) peekPrecedence() PrecedenceLevel {
@@ -395,4 +398,17 @@ func (p *Parser) parseExpressionList(end token.TokenType) []ast.Expression {
 		return nil
 	}
 	return list
+}
+
+func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
+	exp := &ast.IndexExpression{Token: p.curToken, Left: left}
+
+	p.nextToken()
+	exp.Index = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RBRACKET) {
+		return nil
+	}
+
+	return exp
 }
