@@ -30,3 +30,4 @@ This part list topics I don't want to dive into straight away, as my main goal i
 - [ ] add looping/iteration support 
 - [ ] look into the ability to use a more idiomatic error handling instead of isError function
 - [ ] look into the ability to build a module in wasm to run the interpreter in the browser
+- [x] twist builtin `push` function behavior to allow pushing multiple values at once
