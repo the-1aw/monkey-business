@@ -31,3 +31,5 @@ This part list topics I don't want to dive into straight away, as my main goal i
 - [ ] look into the ability to use a more idiomatic error handling instead of isError function
 - [ ] look into the ability to build a module in wasm to run the interpreter in the browser
 - [x] twist builtin `push` function behavior to allow pushing multiple values at once
+- [ ] look into "separate chaining" and "open addressing" as a mitigation stratagy to avoid `HashKey` collision risk(fnv collision risk).
+- [ ] one could argue we should take a look into caching `HashKey` result for `Hashable` objects for performance improvement.
