@@ -1,11 +1,46 @@
 package code
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 )
 
 type Instructions []byte
+
+func (ins Instructions) String() string {
+	out := bytes.Buffer{}
+
+	idx := 0
+	for idx < len(ins) {
+		def, err := Lookup(ins[idx])
+		if err != nil {
+			fmt.Fprintf(&out, "ERROR: %s\n", err)
+			continue
+		}
+		operands, read := ReadOperands(def, ins[idx+1:])
+
+		fmt.Fprintf(&out, "%04d %s\n", idx, ins.fmtInstruction(def, operands))
+
+		idx += read + 1
+	}
+	return out.String()
+}
+
+func (ins Instructions) fmtInstruction(def *Definition, operands []int) string {
+	operandCount := len(def.OperandWidths)
+
+	if len(operands) != operandCount {
+		return fmt.Sprintf("ERROR: operand len %d does not match defined %d\n", len(operands), operandCount)
+	}
+
+	switch operandCount {
+	case 1:
+		return fmt.Sprintf("%s %d", def.Name, operands[0])
+	}
+
+	return fmt.Sprintf("ERROR: unhandled operandCount for %s\n", def.Name)
+}
 
 type Opcode byte
 
@@ -25,8 +60,8 @@ var definitions = map[Opcode]*Definition{
 	OpConstant: {"OpConstant", []int{2}},
 }
 
-func Lookup(op Opcode) (*Definition, error) {
-	def, ok := definitions[op]
+func Lookup(op byte) (*Definition, error) {
+	def, ok := definitions[Opcode(op)]
 	if !ok {
 		return nil, fmt.Errorf("opcode %d undefined", op)
 	}
@@ -55,4 +90,23 @@ func Make(op Opcode, operands ...int) []byte {
 		offset += width
 	}
 	return instruction
+}
+
+func ReadOperands(def *Definition, ins Instructions) ([]int, int) {
+	operands := make([]int, len(def.OperandWidths))
+	offset := 0
+
+	for i, width := range def.OperandWidths {
+		switch width {
+		case 2:
+			operands[i] = int(ReadUint16(ins[offset:]))
+		}
+		offset += width
+	}
+
+	return operands, offset
+}
+
+func ReadUint16(ins Instructions) uint16 {
+	return binary.BigEndian.Uint16(ins)
 }
