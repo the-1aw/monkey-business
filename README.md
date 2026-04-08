@@ -13,6 +13,7 @@ The sole purpose of this toolchain is to improve my knowledge of go and how prog
 
 This part list topics I don't want to dive into straight away, as my main goal is to have a working interpreter and compiler.
 
+- [ ] look into project structure (use internal and split in two engine(jit/tree-walk) use eiter 2 cli or one cli with options)
 - [ ] attach filename, line and column number to token for better parser error handling
 - [ ] add stack trace to the interpreter error
 - [ ] refactor lexer test so them don't stop at first failure
