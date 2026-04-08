@@ -20,7 +20,7 @@ func TestIntegerArithmetic(t *testing.T) {
 	tests := []vmTestCase{
 		{"1", 1},
 		{"2", 2},
-		{"1 + 2", 2}, // FIXME: should expect 3 once the vm is able to add
+		{"1 + 2", 3},
 	}
 
 	runVmTests(t, tests)
