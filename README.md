@@ -34,3 +34,4 @@ This part list topics I don't want to dive into straight away, as my main goal i
 - [ ] look into "separate chaining" and "open addressing" as a mitigation stratagy to avoid `HashKey` collision risk(fnv collision risk).
 - [ ] one could argue we should take a look into caching `HashKey` result for `Hashable` objects for performance improvement.
 - [ ] look into register based VM to see if it might be interesting to replace our stack based one.
+- [ ] consider refactoring ast/lexer/evaluator test with the same shpae as compiler and vm.
