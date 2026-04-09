@@ -46,6 +46,8 @@ func (vm *VM) Run() error {
 			leftValue := left.(*object.Integer).Value
 			result := leftValue + rightValue
 			vm.push(&object.Integer{Value: result})
+		case code.OpPop:
+			vm.pop()
 		}
 	}
 	return nil
@@ -66,9 +68,8 @@ func (vm *VM) push(constant object.Object) error {
 	return nil
 }
 
-func (vm *VM) StackTop() object.Object {
-	if vm.stackPointer == 0 {
-		return nil
-	}
-	return vm.stack[vm.stackPointer-1]
+// NOTE: This method is meant for test puposes only.
+// It relies on the fact we don't set free stack space to nil when we pop.
+func (vm *VM) LastPoppedStackElem() object.Object {
+	return vm.stack[vm.stackPointer]
 }
