@@ -19,6 +19,9 @@ type VM struct {
 
 const StackSize = 2048
 
+var True = &object.Boolean{Value: true}
+var False = &object.Boolean{Value: false}
+
 func New(bytecode *compiler.Bytecode) *VM {
 	return &VM{
 		constants:    bytecode.Constants,
@@ -46,6 +49,16 @@ func (vm *VM) Run() error {
 			}
 		case code.OpPop:
 			vm.pop()
+		case code.OpTrue:
+			err := vm.push(True)
+			if err != nil {
+				return nil
+			}
+		case code.OpFalse:
+			err := vm.push(False)
+			if err != nil {
+				return nil
+			}
 		}
 	}
 	return nil
