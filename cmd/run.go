@@ -11,7 +11,7 @@ import (
 
 var runCmd = &cobra.Command{
 	Use:   "run",
-	Short: "Run monky code with performant bytecode interpreter",
+	Short: "Run monkey code with performant bytecode interpreter",
 	Long: `
 This command runs a monkey bytecode interpreter REPL (Read-Eval-Print-Loop).
 Run command is ~3x faster than the walk command.
