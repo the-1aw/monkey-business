@@ -182,14 +182,18 @@ func TestConditionals(t *testing.T) {
 				// 000
 				code.Make(code.OpTrue),
 				// 001
-				code.Make(code.OpJumpNotTruthy, 7),
+				code.Make(code.OpJumpNotTruthy, 10),
 				// 004
 				code.Make(code.OpConstant, 0),
 				// 007
-				code.Make(code.OpPop),
-				// 008
-				code.Make(code.OpConstant, 1),
+				code.Make(code.OpJump, 11),
+				// 010
+				code.Make(code.OpNull),
 				// 011
+				code.Make(code.OpPop),
+				// 012
+				code.Make(code.OpConstant, 1),
+				// 015
 				code.Make(code.OpPop),
 			},
 		},

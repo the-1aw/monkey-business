@@ -67,15 +67,15 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if c.lastInstructionIsPop() {
 			c.removeLastPop()
 		}
-		if node.Alternative == nil {
-			consequenceEnd := len(c.instructions)
-			c.changeOperand(consequnceJumpPos, consequenceEnd)
-		} else {
-			// cf note above about back-patching
-			alternativeJumpPos := c.emit(code.OpJump, 9999)
-			consequenceEnd := len(c.instructions)
-			c.changeOperand(consequnceJumpPos, consequenceEnd)
 
+		// cf note above about back-patching
+		alternativeJumpPos := c.emit(code.OpJump, 9999)
+		consequenceEnd := len(c.instructions)
+		c.changeOperand(consequnceJumpPos, consequenceEnd)
+
+		if node.Alternative == nil {
+			c.emit(code.OpNull)
+		} else {
 			err := c.Compile(node.Alternative)
 			if err != nil {
 				return err
@@ -83,10 +83,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 			if c.lastInstructionIsPop() {
 				c.removeLastPop()
 			}
-
-			alternativeEnd := len(c.instructions)
-			c.changeOperand(alternativeJumpPos, alternativeEnd)
 		}
+		alternativeEnd := len(c.instructions)
+		c.changeOperand(alternativeJumpPos, alternativeEnd)
 
 	case *ast.PrefixExpression:
 		err := c.Compile(node.Right)
