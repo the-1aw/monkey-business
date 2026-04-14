@@ -8,15 +8,25 @@ import (
 	"github.com/the-1aw/monkey-business/object"
 )
 
+type EmittedInstruction struct {
+	Opcode   code.Opcode
+	Position int
+}
+
 type Compiler struct {
 	instructions code.Instructions
 	constants    []object.Object
+
+	lastInstruction     EmittedInstruction
+	previousInstruction EmittedInstruction
 }
 
 func New() *Compiler {
 	return &Compiler{
-		code.Instructions{},
-		[]object.Object{},
+		instructions:        code.Instructions{},
+		constants:           []object.Object{},
+		lastInstruction:     EmittedInstruction{},
+		previousInstruction: EmittedInstruction{},
 	}
 }
 
@@ -29,12 +39,54 @@ func (c *Compiler) Compile(node ast.Node) error {
 				return err
 			}
 		}
+	case *ast.BlockStatement:
+		for _, stmt := range node.Statements {
+			err := c.Compile(stmt)
+			if err != nil {
+				return err
+			}
+		}
 	case *ast.ExpressionStatement:
 		err := c.Compile(node.Expression)
 		if err != nil {
 			return err
 		}
 		c.emit(code.OpPop)
+	case *ast.IfExpression:
+		err := c.Compile(node.Condition)
+		if err != nil {
+			return err
+		}
+		// NOTE: We intentionally use bogus value here.
+		// Value will be back-patched once consequence has been compiled
+		consequnceJumpPos := c.emit(code.OpJumpNotTruthy, 9999)
+		err = c.Compile(node.Consequence)
+		if err != nil {
+			return err
+		}
+		if c.lastInstructionIsPop() {
+			c.removeLastPop()
+		}
+
+		// cf note above about back-patching
+		alternativeJumpPos := c.emit(code.OpJump, 9999)
+		consequenceEnd := len(c.instructions)
+		c.changeOperand(consequnceJumpPos, consequenceEnd)
+
+		if node.Alternative == nil {
+			c.emit(code.OpNull)
+		} else {
+			err := c.Compile(node.Alternative)
+			if err != nil {
+				return err
+			}
+			if c.lastInstructionIsPop() {
+				c.removeLastPop()
+			}
+		}
+		alternativeEnd := len(c.instructions)
+		c.changeOperand(alternativeJumpPos, alternativeEnd)
+
 	case *ast.PrefixExpression:
 		err := c.Compile(node.Right)
 		if err != nil {
@@ -100,14 +152,48 @@ func (c *Compiler) Compile(node ast.Node) error {
 	return nil
 }
 
+// NOTE: For the sake of simplicity we assume old and new instructions are the same size
+// Should this assumption change the stategy needs to change and lastInstruction along with
+// previousInstruction must be carefuly dealt with
+func (c *Compiler) replaceInstruction(pos int, newInstruction []byte) {
+	for i := range len(newInstruction) {
+		c.instructions[pos+i] = newInstruction[i]
+	}
+}
+
+func (c *Compiler) changeOperand(opPos int, operand int) {
+	op := code.Opcode(c.instructions[opPos])
+	newInstruction := code.Make(op, operand)
+	c.replaceInstruction(opPos, newInstruction)
+}
+
+func (c *Compiler) lastInstructionIsPop() bool {
+	return c.lastInstruction.Opcode == code.OpPop
+}
+
+// I have mixed feeling about this as it's not idempotent.
+// Sure it works for how we use it, but it throws previousInstruction out of sync.
+func (c *Compiler) removeLastPop() {
+	c.instructions = c.instructions[:c.lastInstruction.Position]
+	c.lastInstruction = c.previousInstruction
+}
+
 func (c *Compiler) addConstant(obj object.Object) int {
 	c.constants = append(c.constants, obj)
 	return len(c.constants) - 1
 }
 
+func (c *Compiler) setLastInstruction(op code.Opcode, pos int) {
+	prev := c.lastInstruction
+	last := EmittedInstruction{op, pos}
+	c.previousInstruction = prev
+	c.lastInstruction = last
+}
+
 func (c *Compiler) emit(op code.Opcode, operands ...int) int {
 	instruction := code.Make(op, operands...)
 	pos := c.addInstruction(instruction)
+	c.setLastInstruction(op, pos)
 	return pos
 }
 
@@ -117,14 +203,14 @@ func (c *Compiler) addInstruction(instruction []byte) int {
 	return posNewInstruction
 }
 
+type Bytecode struct {
+	Instructions code.Instructions
+	Constants    []object.Object
+}
+
 func (c *Compiler) Bytecode() *Bytecode {
 	return &Bytecode{
 		Instructions: c.instructions,
 		Constants:    c.constants,
 	}
-}
-
-type Bytecode struct {
-	Instructions code.Instructions
-	Constants    []object.Object
 }
