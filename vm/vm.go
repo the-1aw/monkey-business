@@ -37,6 +37,12 @@ func New(bytecode *compiler.Bytecode) *VM {
 	}
 }
 
+func NewWithGlobalsStore(bytecode *compiler.Bytecode, s []object.Object) *VM {
+	vm := New(bytecode)
+	vm.globals = s
+	return vm
+}
+
 func (vm *VM) Run() error {
 	for instructionPointer := 0; instructionPointer < len(vm.instructions); instructionPointer++ {
 		op := code.Opcode(vm.instructions[instructionPointer])

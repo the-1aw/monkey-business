@@ -66,6 +66,10 @@ func StartInterpreter(in io.Reader, out io.Writer) {
 
 func StartCompiler(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
+	constants := []object.Object{}
+	globals := make([]object.Object, vm.GlobalsSize)
+	symbolTable := compiler.NewSymbolTable()
+
 	for {
 		fmt.Fprintf(out, PROMPT)
 		scanned := scanner.Scan()
@@ -83,14 +87,19 @@ func StartCompiler(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		comp := compiler.New()
+		comp := compiler.NewWithState(symbolTable, constants)
 		err := comp.Compile(program)
 		if err != nil {
 			fmt.Fprintf(out, "Woops! Compilation failed:\n %s\n", err)
 			continue
 		}
 
-		machine := vm.New(comp.Bytecode())
+		bytecode := comp.Bytecode()
+		// NOTE: This is required because compiler can use append on c.constants during compilation
+		// which would prevent us from from maintaining a constant context.
+		constants = bytecode.Constants
+
+		machine := vm.NewWithGlobalsStore(bytecode, globals)
 		err = machine.Run()
 		if err != nil {
 			fmt.Fprintf(out, "Woops! Executin bytecode failed:\n %s\n", err)
