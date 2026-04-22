@@ -17,6 +17,31 @@ type compilerTestCase struct {
 	expectedInstructions []code.Instructions
 }
 
+func TestStringExpression(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input:             `"monkey"`,
+			expectedConstants: []any{"monkey"},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input:             `"mon" + "key"`,
+			expectedConstants: []any{"mon", "key"},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpConstant, 1),
+				code.Make(code.OpAdd),
+				code.Make(code.OpPop),
+			},
+		},
+	}
+
+	runCompilerTests(t, tests)
+}
+
 func TestGlobalLetStatements(t *testing.T) {
 	tests := []compilerTestCase{
 		{
@@ -316,6 +341,17 @@ func testIntegerObject(expected int64, actual object.Object) error {
 	return nil
 }
 
+func testStringObject(expected string, actual object.Object) error {
+	result, ok := actual.(*object.String)
+	if !ok {
+		return fmt.Errorf("object is not String. got=%T (%+v)", actual, actual)
+	}
+	if result.Value != expected {
+		return fmt.Errorf("object has wrong value. got=%s, want=%s", result.Value, expected)
+	}
+	return nil
+}
+
 func testConstants(t *testing.T, expected []any, actual []object.Object) error {
 	if len(expected) != len(actual) {
 		return fmt.Errorf("wrong number of constants. got=%d, want=%d", len(actual), len(expected))
@@ -326,6 +362,11 @@ func testConstants(t *testing.T, expected []any, actual []object.Object) error {
 			err := testIntegerObject(int64(constant), actual[idx])
 			if err != nil {
 				return fmt.Errorf("constant %d - testIntegerObject failed: %s", idx, err)
+			}
+		case string:
+			err := testStringObject(constant, actual[idx])
+			if err != nil {
+				return fmt.Errorf("constant %d - testStringObject failed: %s", idx, err)
 			}
 		}
 	}
