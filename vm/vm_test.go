@@ -16,6 +16,16 @@ type vmTestCase struct {
 	expected any
 }
 
+func TestStringExpresssion(t *testing.T) {
+	tests := []vmTestCase{
+		{`"monkey"`, "monkey"},
+		{`"mon" + "key"`, "monkey"},
+		{`"mon" + "key" + "banana"`, "monkeybanana"},
+	}
+
+	runVmTests(t, tests)
+}
+
 func TestGlobalLetStatements(t *testing.T) {
 	tests := []vmTestCase{
 		{"let one = 1; one", 1},
@@ -136,6 +146,11 @@ func testExpectedObject(t *testing.T, expected any, actual object.Object) {
 		if err != nil {
 			t.Errorf("testBooleanObject failed: %s", err)
 		}
+	case string:
+		err := testStringObject(string(expected), actual)
+		if err != nil {
+			t.Errorf("testStringObject failed: %s", err)
+		}
 	case *object.Null:
 		if actual != Null {
 			t.Errorf("object is not Null: %T (%+v)", actual, actual)
@@ -147,6 +162,17 @@ func parse(input string) *ast.Program {
 	l := lexer.New(input)
 	p := parser.New(l)
 	return p.ParseProgram()
+}
+
+func testStringObject(expected string, actual object.Object) error {
+	result, ok := actual.(*object.String)
+	if !ok {
+		return fmt.Errorf("object is not String. got=%T (%+v)", actual, actual)
+	}
+	if result.Value != expected {
+		return fmt.Errorf("object has wrong value. got=%s, want=%s", result.Value, expected)
+	}
+	return nil
 }
 
 func testIntegerObject(expected int64, actual object.Object) error {
