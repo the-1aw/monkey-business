@@ -2,6 +2,7 @@ package compiler
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/the-1aw/monkey-business/ast"
 	"github.com/the-1aw/monkey-business/code"
@@ -121,7 +122,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.emit(code.OpMinus)
 		}
 	case *ast.InfixExpression:
-		// "<" is an exception in order to share op code with ">"
+		// NOTE: "<" is an exception in order to share op code with ">"
 		// it showcases compiler's code reordering capabilities
 		if node.Operator == "<" {
 			err := c.Compile(node.Right)
@@ -169,6 +170,27 @@ func (c *Compiler) Compile(node ast.Node) error {
 			}
 		}
 		c.emit(code.OpArray, len(node.Elements))
+	case *ast.HashLiteral:
+		keys := []ast.Expression{}
+		for k := range node.Pairs {
+			keys = append(keys, k)
+		}
+		// NOTE: Compiler and VM could work just fine without key sort
+		// but maintaining consistant key order makes the output way easier to test.
+		sort.Slice(keys, func(i, j int) bool {
+			return keys[i].String() < keys[j].String()
+		})
+		for _, k := range keys {
+			err := c.Compile(k)
+			if err != nil {
+				return err
+			}
+			err = c.Compile(node.Pairs[k])
+			if err != nil {
+				return err
+			}
+		}
+		c.emit(code.OpHash, len(node.Pairs)*2)
 	case *ast.StringLiteral:
 		str := &object.String{Value: node.Value}
 		c.emit(code.OpConstant, c.addConstant(str))
