@@ -8,16 +8,20 @@ import (
 	"github.com/the-1aw/monkey-business/object"
 )
 
+const StackSize = 2048
+
+// Related to
+const GlobalsSize = 65536
+
 type VM struct {
 	constants    []object.Object
 	instructions code.Instructions
 
-	stack []object.Object
+	globals []object.Object
+	stack   []object.Object
 	// Always point to next value, stack top is stack[stackPointer - 1]
 	stackPointer int
 }
-
-const StackSize = 2048
 
 var True = &object.Boolean{Value: true}
 var False = &object.Boolean{Value: false}
@@ -27,9 +31,16 @@ func New(bytecode *compiler.Bytecode) *VM {
 	return &VM{
 		constants:    bytecode.Constants,
 		instructions: bytecode.Instructions,
-		stack:        make([]object.Object, StackSize),
 		stackPointer: 0,
+		stack:        make([]object.Object, StackSize),
+		globals:      make([]object.Object, GlobalsSize),
 	}
+}
+
+func NewWithGlobalsStore(bytecode *compiler.Bytecode, s []object.Object) *VM {
+	vm := New(bytecode)
+	vm.globals = s
+	return vm
 }
 
 func (vm *VM) Run() error {
@@ -76,6 +87,17 @@ func (vm *VM) Run() error {
 			if !isTruthy(condition) {
 				// we use -1 in order compensate for the loop auto increment
 				instructionPointer = pos - 1
+			}
+		case code.OpSetGlobal:
+			globalIndex := code.ReadUint16(vm.instructions[instructionPointer+1:])
+			instructionPointer += 2
+			vm.globals[globalIndex] = vm.pop()
+		case code.OpGetGlobal:
+			globalIndex := code.ReadUint16(vm.instructions[instructionPointer+1:])
+			instructionPointer += 2
+			err := vm.push(vm.globals[globalIndex])
+			if err != nil {
+				return err
 			}
 		case code.OpNull:
 			err := vm.push(Null)
