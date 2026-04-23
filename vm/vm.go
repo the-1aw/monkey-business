@@ -109,6 +109,19 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+		case code.OpHash:
+			numElements := int(code.ReadUint16(vm.instructions[instructionPointer+1:]))
+			instructionPointer += 2
+
+			hash, err := vm.buildHash(vm.stackPointer-numElements, vm.stackPointer)
+			if err != nil {
+				return err
+			}
+			vm.stackPointer = vm.stackPointer - numElements
+			err = vm.push(hash)
+			if err != nil {
+				return err
+			}
 		case code.OpNull:
 			err := vm.push(Null)
 			if err != nil {
@@ -127,6 +140,23 @@ func (vm *VM) Run() error {
 		}
 	}
 	return nil
+}
+
+func (vm *VM) buildHash(startIdx, endIdx int) (object.Object, error) {
+	pairs := map[object.HashKey]object.HashPair{}
+	for idx := startIdx; idx < endIdx; idx += 2 {
+		key := vm.stack[idx]
+		value := vm.stack[idx+1]
+
+		pair := object.HashPair{Key: key, Value: value}
+		hashKey, ok := key.(object.Hashable)
+		if !ok {
+			return nil, fmt.Errorf("unusable as hash key: %s", key.Type())
+		}
+
+		pairs[hashKey.HashKey()] = pair
+	}
+	return &object.Hash{Pairs: pairs}, nil
 }
 
 func (vm *VM) buildArray(startIdx, endIdx int) object.Object {
