@@ -99,6 +99,16 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+		case code.OpArray:
+			numElements := int(code.ReadUint16(vm.instructions[instructionPointer+1:]))
+			instructionPointer += 2
+
+			array := vm.buildArray(vm.stackPointer-numElements, vm.stackPointer)
+			vm.stackPointer = vm.stackPointer - numElements
+			err := vm.push(array)
+			if err != nil {
+				return err
+			}
 		case code.OpNull:
 			err := vm.push(Null)
 			if err != nil {
@@ -117,6 +127,14 @@ func (vm *VM) Run() error {
 		}
 	}
 	return nil
+}
+
+func (vm *VM) buildArray(startIdx, endIdx int) object.Object {
+	elements := make([]object.Object, endIdx-startIdx)
+	for idx := startIdx; idx < endIdx; idx++ {
+		elements[idx-startIdx] = vm.stack[idx]
+	}
+	return &object.Array{Elements: elements}
 }
 
 func isTruthy(obj object.Object) bool {
