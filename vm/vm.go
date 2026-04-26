@@ -10,7 +10,7 @@ import (
 
 const StackSize = 2048
 
-// Related to
+// NOTE: We use 2 bytes operand for global indexing so max amount is 2^16
 const GlobalsSize = 65536
 
 type VM struct {
