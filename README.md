@@ -65,6 +65,7 @@ This section lists topics I don't want to dive into straight away, as my main go
 - [ ] Implement a debugger adapter for Monkey.
 - [ ] Add support for `else if`.
 - [ ] Add support for switch statements.
+- [ ] Add support for string indexing.
 - [ ] Add looping/iteration support.
 - [ ] Look into using a more idiomatic error handling approach instead of the `isError` function.
 - [ ] Look into the ability to build a wasm module to run the interpreter in the browser.
@@ -74,3 +75,4 @@ This section lists topics I don't want to dive into straight away, as my main go
 - [ ] Look into a register-based VM to see if it might be worth replacing our stack-based one.
 - [ ] Consider refactoring ast/lexer/evaluator tests with the same shape as compiler and vm.
 - [ ] Use go function option pattern to replace `compiler.NewWithState` and `vm.NewWithGlobalsStore` (overkill for the use case but will gain knowledge)
+- [ ] Raise an error from the vm on unknown OpCode instead of undefined behavior most likely to panic.

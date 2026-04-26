@@ -99,6 +99,36 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+		case code.OpArray:
+			numElements := int(code.ReadUint16(vm.instructions[instructionPointer+1:]))
+			instructionPointer += 2
+
+			array := vm.buildArray(vm.stackPointer-numElements, vm.stackPointer)
+			vm.stackPointer = vm.stackPointer - numElements
+			err := vm.push(array)
+			if err != nil {
+				return err
+			}
+		case code.OpHash:
+			numElements := int(code.ReadUint16(vm.instructions[instructionPointer+1:]))
+			instructionPointer += 2
+
+			hash, err := vm.buildHash(vm.stackPointer-numElements, vm.stackPointer)
+			if err != nil {
+				return err
+			}
+			vm.stackPointer = vm.stackPointer - numElements
+			err = vm.push(hash)
+			if err != nil {
+				return err
+			}
+		case code.OpIndex:
+			index := vm.pop()
+			left := vm.pop()
+			err := vm.executeIndexExpressions(left, index)
+			if err != nil {
+				return err
+			}
 		case code.OpNull:
 			err := vm.push(Null)
 			if err != nil {
@@ -117,6 +147,66 @@ func (vm *VM) Run() error {
 		}
 	}
 	return nil
+}
+
+func (vm *VM) executeHashIndex(hash, index object.Object) error {
+	hashObject := hash.(*object.Hash)
+	key, ok := index.(object.Hashable)
+	if !ok {
+		return fmt.Errorf("unusable as hash key: %s", index.Type())
+	}
+	pair, ok := hashObject.Pairs[key.HashKey()]
+	if !ok {
+		return vm.push(Null)
+	}
+	return vm.push(pair.Value)
+}
+
+func (vm *VM) executeArrayIndex(array, index object.Object) error {
+	arrayObject := array.(*object.Array)
+	arrayIdx := index.(*object.Integer).Value
+	topBoundry := int64(len(arrayObject.Elements) - 1)
+
+	if arrayIdx < 0 || arrayIdx > topBoundry {
+		return vm.push(Null)
+	}
+	return vm.push(arrayObject.Elements[arrayIdx])
+}
+
+func (vm *VM) executeIndexExpressions(left, index object.Object) error {
+	switch {
+	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INTEGER_OBJ:
+		return vm.executeArrayIndex(left, index)
+	case left.Type() == object.HASH_OBJ:
+		return vm.executeHashIndex(left, index)
+	default:
+		return fmt.Errorf("index operator not suported: %s", left.Type())
+	}
+}
+
+func (vm *VM) buildHash(startIdx, endIdx int) (object.Object, error) {
+	pairs := map[object.HashKey]object.HashPair{}
+	for idx := startIdx; idx < endIdx; idx += 2 {
+		key := vm.stack[idx]
+		value := vm.stack[idx+1]
+
+		pair := object.HashPair{Key: key, Value: value}
+		hashKey, ok := key.(object.Hashable)
+		if !ok {
+			return nil, fmt.Errorf("unusable as hash key: %s", key.Type())
+		}
+
+		pairs[hashKey.HashKey()] = pair
+	}
+	return &object.Hash{Pairs: pairs}, nil
+}
+
+func (vm *VM) buildArray(startIdx, endIdx int) object.Object {
+	elements := make([]object.Object, endIdx-startIdx)
+	for idx := startIdx; idx < endIdx; idx++ {
+		elements[idx-startIdx] = vm.stack[idx]
+	}
+	return &object.Array{Elements: elements}
 }
 
 func isTruthy(obj object.Object) bool {
@@ -200,10 +290,22 @@ func (vm *VM) executeBinaryOperation(op code.Opcode) error {
 
 	leftType := left.Type()
 	rightType := right.Type()
+	if leftType == object.STRING_OBJ && rightType == object.STRING_OBJ {
+		return vm.executeBinaryStringOperation(op, left, right)
+	}
 	if leftType == object.INTEGER_OBJ && rightType == object.INTEGER_OBJ {
 		return vm.executeBinaryIntegerOperation(op, left, right)
 	}
 	return fmt.Errorf("unsupported types for binary operation: %s %s", leftType, rightType)
+}
+
+func (vm *VM) executeBinaryStringOperation(op code.Opcode, left, right object.Object) error {
+	if op != code.OpAdd {
+		return fmt.Errorf("unknkow string operator: %d", op)
+	}
+	leftValue := left.(*object.String).Value
+	rightValue := right.(*object.String).Value
+	return vm.push(&object.String{Value: leftValue + rightValue})
 }
 
 func (vm *VM) executeBinaryIntegerOperation(op code.Opcode, left, right object.Object) error {
