@@ -16,6 +16,27 @@ type vmTestCase struct {
 	expected any
 }
 
+func TestCallingFuncionWithoutReturnValue(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input: `
+			let noReturn = fn() { };
+			noReturn();
+			`,
+			expected: Null,
+		}, {
+			input: `
+			let noReturn = fn() {}
+			let noReturnTwo = fn() {noReturn()}
+			noReturn();
+			noReturnTwo();
+			`,
+			expected: Null,
+		},
+	}
+	runVmTests(t, tests)
+}
+
 func TestCallingFunctionWithoutArguments(t *testing.T) {
 	tests := []vmTestCase{
 		{
