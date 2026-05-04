@@ -16,6 +16,34 @@ type vmTestCase struct {
 	expected any
 }
 
+func TestCallingFunctionWithoutArguments(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input: `
+		let fivePlusTen = fn() { 5 + 10; };
+		fivePlusTen();
+		`,
+			expected: 15,
+		},
+		{
+			input: `
+		let earlyExit = fn() {return 99; 100;}
+		earlyExit();
+		`,
+			expected: 99,
+		},
+		{
+			input: `
+		let earlyExit = fn() {return 99; return 100;}
+		earlyExit();
+		`,
+			expected: 99,
+		},
+	}
+
+	runVmTests(t, tests)
+}
+
 func TestIndexExpressions(t *testing.T) {
 	tests := []vmTestCase{
 		{"[1, 2, 3][1]", 2},

@@ -145,6 +145,23 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+		case code.OpReturnValue:
+			returnValue := vm.pop()
+
+			vm.popFrame()
+			vm.pop()
+
+			err := vm.push(returnValue)
+			if err != nil {
+				return err
+			}
+		case code.OpCall:
+			fn, ok := vm.stack[vm.stackPointer-1].(*object.CompiledFunction)
+			if !ok {
+				return fmt.Errorf("calling non-function")
+			}
+			frame := NewFrame(fn)
+			vm.pushFrame(frame)
 		case code.OpIndex:
 			index := vm.pop()
 			left := vm.pop()
