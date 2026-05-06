@@ -60,6 +60,7 @@ This section lists topics I don't want to dive into straight away, as my main go
 - [ ] Handle hex numbers.
 - [ ] Add support for `<=` and `>=`.
 - [ ] Add postfix operators (e.g., `++`, `--`).
+- [ ] Use git hooks to run tests
 - [x] Update parser testing functions in order to make it easier to add test cases for each expression type.
 - [ ] Implement a language server for Monkey.
 - [ ] Implement a debugger adapter for Monkey.
