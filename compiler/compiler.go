@@ -252,7 +252,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if err != nil {
 			return err
 		}
-		c.emit(code.OpCall)
+		for _, arg := range node.Args {
+			err := c.Compile(arg)
+			if err != nil {
+				return err
+			}
+		}
+		c.emit(code.OpCall, len(node.Args))
 	case *ast.StringLiteral:
 		str := &object.String{Value: node.Value}
 		c.emit(code.OpConstant, c.addConstant(str))
