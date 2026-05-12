@@ -24,6 +24,17 @@ var Builtins = []struct {
 			},
 		},
 	},
+	{
+		"puts",
+		&Builtin{
+			Fn: func(args ...Object) Object {
+				for _, arg := range args {
+					fmt.Println(arg.Inspect())
+				}
+				return nil
+			},
+		},
+	},
 }
 
 func GetBuiltinByName(name string) *Builtin {

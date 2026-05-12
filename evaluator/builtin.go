@@ -1,10 +1,6 @@
 package evaluator
 
-import (
-	"fmt"
-
-	"github.com/the-1aw/monkey-business/object"
-)
+import "github.com/the-1aw/monkey-business/object"
 
 var builtins = map[string]*object.Builtin{
 	"len": object.GetBuiltinByName("len"),
@@ -77,12 +73,5 @@ var builtins = map[string]*object.Builtin{
 			}
 		},
 	},
-	"puts": {
-		Fn: func(args ...object.Object) object.Object {
-			for _, arg := range args {
-				fmt.Println(arg.Inspect())
-			}
-			return NULL
-		},
-	},
+	"puts": object.GetBuiltinByName("puts"),
 }
