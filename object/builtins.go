@@ -69,6 +69,28 @@ var Builtins = []struct {
 				return nil
 			},
 		},
+	}, {
+		"rest",
+		&Builtin{
+			Fn: func(args ...Object) Object {
+				if len(args) != 1 {
+					return newError("wrong number of arguments. got=%d, want=1", len(args))
+				}
+				if args[0].Type() != ARRAY_OBJ {
+					return newError("argument to `rest` must be %s, got %s", ARRAY_OBJ, args[0].Type())
+				}
+				array := args[0].(*Array)
+				arrayLen := len(array.Elements)
+				if arrayLen == 0 {
+					return nil
+				}
+				elementRest := make([]Object, arrayLen-1)
+				copy(elementRest, array.Elements[1:])
+				return &Array{
+					Elements: elementRest,
+				}
+			},
+		},
 	},
 }
 

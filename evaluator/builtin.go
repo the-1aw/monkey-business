@@ -6,26 +6,7 @@ var builtins = map[string]*object.Builtin{
 	"len":   object.GetBuiltinByName("len"),
 	"first": object.GetBuiltinByName("first"),
 	"last":  object.GetBuiltinByName("last"),
-	"rest": {
-		Fn: func(args ...object.Object) object.Object {
-			if len(args) != 1 {
-				return newError("wrong number of arguments. got=%d, want=1", len(args))
-			}
-			if args[0].Type() != object.ARRAY_OBJ {
-				return newError("argument to `rest` must be %s, got %s", object.ARRAY_OBJ, args[0].Type())
-			}
-			array := args[0].(*object.Array)
-			arrayLen := len(array.Elements)
-			if arrayLen == 0 {
-				return NULL
-			}
-			elementRest := make([]object.Object, arrayLen-1)
-			copy(elementRest, array.Elements[1:])
-			return &object.Array{
-				Elements: elementRest,
-			}
-		},
-	},
+	"rest":  object.GetBuiltinByName("rest"),
 	"push": {
 		Fn: func(args ...object.Object) object.Object {
 			if len(args) < 2 {
