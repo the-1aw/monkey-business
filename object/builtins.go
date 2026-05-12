@@ -91,6 +91,26 @@ var Builtins = []struct {
 				}
 			},
 		},
+	}, {
+		"push",
+		&Builtin{
+			Fn: func(args ...Object) Object {
+				if len(args) < 2 {
+					return newError("wrong number of arguments. got=%d, want=1", len(args))
+				}
+				if args[0].Type() != ARRAY_OBJ {
+					return newError("argument to `push` must be %s, got %s", ARRAY_OBJ, args[0].Type())
+				}
+				array := args[0].(*Array)
+				arrayLen := len(array.Elements)
+				newElements := make([]Object, arrayLen)
+				copy(newElements, array.Elements)
+				newElements = append(newElements, args[1:]...)
+				return &Array{
+					Elements: newElements,
+				}
+			},
+		},
 	},
 }
 
