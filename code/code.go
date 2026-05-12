@@ -73,6 +73,7 @@ const (
 	OpReturnValue
 	OpGetLocal
 	OpSetLocal
+	OpGetBuiltin
 )
 
 // This defines the metadata of an opcode.
@@ -111,8 +112,9 @@ var definitions = map[Opcode]*Definition{
 	// NOTE: We could have used 2 bytes operand here but choose one for two reason
 	// 1) 256 local bindings should be more than enough for one scope so might as well save some memory
 	// 2) We used 2 bytes for every operand so far and I want to see something different ^^'
-	OpGetLocal: {"OpGetLocal", []int{1}},
-	OpSetLocal: {"OpSetLocal", []int{1}},
+	OpGetLocal:   {"OpGetLocal", []int{1}},
+	OpSetLocal:   {"OpSetLocal", []int{1}},
+	OpGetBuiltin: {"OpGetBuiltIn", []int{1}},
 }
 
 func Lookup(op byte) (*Definition, error) {
