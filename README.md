@@ -53,13 +53,14 @@ This section lists topics I don't want to dive into straight away, as my main go
 - [ ] Look into project structure (use internal and split in two engine(jit/tree-walk) use eiter 2 cli or one cli with options).
 - [ ] Attach filename, line and column number to token for better parser error handling.
 - [ ] Add stack trace to the interpreter error.
-- [ ] Refactor lexer tests so they don't stop at first failure.
+- [ ] Refactor tests so they don't stop at first failure especially for compiler and vm.
 - [ ] Add support for unicode (currently lexer uses char, we would need to use rune).
 - [ ] Merge `readIdentifier` and `readNumber` into a single function `readWord(identityFn fn(ch byte) bool)`.
 - [ ] Handle floats.
 - [ ] Handle hex numbers.
 - [ ] Add support for `<=` and `>=`.
 - [ ] Add postfix operators (e.g., `++`, `--`).
+- [ ] Use git hooks to run tests
 - [x] Update parser testing functions in order to make it easier to add test cases for each expression type.
 - [ ] Implement a language server for Monkey.
 - [ ] Implement a debugger adapter for Monkey.
@@ -75,5 +76,7 @@ This section lists topics I don't want to dive into straight away, as my main go
 - [ ] Look into a register-based VM to see if it might be worth replacing our stack-based one.
 - [ ] Consider refactoring ast/lexer/evaluator tests with the same shape as compiler and vm.
 - [ ] Use go function option pattern to replace `compiler.NewWithState` and `vm.NewWithGlobalsStore` (overkill for the use case but will gain knowledge)
+- [ ] Use go function option pattern to replace `compiler.NewSymbolTable` and `compiler.NewEnclosedSymbolTable` (overkill for the use case but will gain knowledge)
 - [ ] Raise an error from the vm on unknown OpCode instead of undefined behavior most likely to panic.
 - [ ] Investigate how to make `GetBuiltinByName` O(1) instead of O(n)
+- [ ] Consider making wrong function arguments numbers a compile error, not only a runtime error.
