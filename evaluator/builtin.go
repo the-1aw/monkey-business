@@ -3,22 +3,8 @@ package evaluator
 import "github.com/the-1aw/monkey-business/object"
 
 var builtins = map[string]*object.Builtin{
-	"len": object.GetBuiltinByName("len"),
-	"first": {
-		Fn: func(args ...object.Object) object.Object {
-			if len(args) != 1 {
-				return newError("wrong number of arguments. got=%d, want=1", len(args))
-			}
-			if args[0].Type() != object.ARRAY_OBJ {
-				return newError("argument to `first` must be %s, got %s", object.ARRAY_OBJ, args[0].Type())
-			}
-			arg := args[0].(*object.Array)
-			if len(arg.Elements) > 0 {
-				return arg.Elements[0]
-			}
-			return NULL
-		},
-	},
+	"len":   object.GetBuiltinByName("len"),
+	"first": object.GetBuiltinByName("first"),
 	"last": {
 		Fn: func(args ...object.Object) object.Object {
 			if len(args) != 1 {

@@ -34,6 +34,23 @@ var Builtins = []struct {
 				return nil
 			},
 		},
+	}, {
+		"first",
+		&Builtin{
+			Fn: func(args ...Object) Object {
+				if len(args) != 1 {
+					return newError("wrong number of arguments. got=%d, want=1", len(args))
+				}
+				if args[0].Type() != ARRAY_OBJ {
+					return newError("argument to `first` must be %s, got %s", ARRAY_OBJ, args[0].Type())
+				}
+				arg := args[0].(*Array)
+				if len(arg.Elements) > 0 {
+					return arg.Elements[0]
+				}
+				return nil
+			},
+		},
 	},
 }
 
