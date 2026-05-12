@@ -5,22 +5,7 @@ import "github.com/the-1aw/monkey-business/object"
 var builtins = map[string]*object.Builtin{
 	"len":   object.GetBuiltinByName("len"),
 	"first": object.GetBuiltinByName("first"),
-	"last": {
-		Fn: func(args ...object.Object) object.Object {
-			if len(args) != 1 {
-				return newError("wrong number of arguments. got=%d, want=1", len(args))
-			}
-			if args[0].Type() != object.ARRAY_OBJ {
-				return newError("argument to `last` must be %s, got %s", object.ARRAY_OBJ, args[0].Type())
-			}
-			array := args[0].(*object.Array)
-			arrayLen := len(array.Elements)
-			if arrayLen > 0 {
-				return array.Elements[arrayLen-1]
-			}
-			return NULL
-		},
-	},
+	"last":  object.GetBuiltinByName("last"),
 	"rest": {
 		Fn: func(args ...object.Object) object.Object {
 			if len(args) != 1 {
