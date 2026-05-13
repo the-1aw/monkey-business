@@ -75,7 +75,7 @@ This section lists topics I don't want to dive into straight away, as my main go
 - [ ] Look into caching `HashKey` results for `Hashable` objects for performance improvement.
 - [ ] Look into a register-based VM to see if it might be worth replacing our stack-based one.
 - [ ] Consider refactoring ast/lexer/evaluator tests with the same shape as compiler and vm.
-- [ ] Use go function option pattern to replace `compiler.NewWithState` and `vm.NewWithGlobalsStore` (overkill for the use case but will gain knowledge)
+- [x] Use go function option pattern to replace `compiler.NewWithState` and `vm.NewWithGlobalsStore` (overkill for the use case but will gain knowledge)
 - [ ] Use go function option pattern to replace `compiler.NewSymbolTable` and `compiler.NewEnclosedSymbolTable` (overkill for the use case but will gain knowledge)
 - [ ] Raise an error from the vm on unknown OpCode instead of undefined behavior most likely to panic.
 - [ ] Investigate how to make `GetBuiltinByName` O(1) instead of O(n)

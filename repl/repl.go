@@ -87,7 +87,10 @@ func StartCompiler(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		comp := compiler.NewWithState(symbolTable, constants)
+		comp := compiler.New(
+			compiler.WithSymbolTable(symbolTable),
+			compiler.WithConstants(constants),
+		)
 		err := comp.Compile(program)
 		if err != nil {
 			fmt.Fprintf(out, "Woops! Compilation failed:\n %s\n", err)
@@ -99,7 +102,7 @@ func StartCompiler(in io.Reader, out io.Writer) {
 		// which would prevent us from from maintaining a constant context.
 		constants = bytecode.Constants
 
-		machine := vm.NewWithGlobalsStore(bytecode, globals)
+		machine := vm.New(bytecode, vm.WithGlobalsStore(globals))
 		err = machine.Run()
 		if err != nil {
 			fmt.Fprintf(out, "Woops! Executin bytecode failed:\n %s\n", err)

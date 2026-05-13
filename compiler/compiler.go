@@ -29,7 +29,9 @@ type Compiler struct {
 	scopeIdx int
 }
 
-func New() *Compiler {
+type CompilerOption func(*Compiler)
+
+func New(opts ...CompilerOption) *Compiler {
 	mainScope := CompilationScope{
 		instructions:        code.Instructions{},
 		lastInstruction:     EmittedInstruction{},
@@ -41,19 +43,28 @@ func New() *Compiler {
 		symbolTable.DefineBuiltin(idx, builtin.Name)
 	}
 
-	return &Compiler{
+	compiler := &Compiler{
 		constants:   []object.Object{},
 		symbolTable: symbolTable,
 		scopes:      []CompilationScope{mainScope},
 		scopeIdx:    0,
 	}
+	for _, opt := range opts {
+		opt(compiler)
+	}
+	return compiler
 }
 
-func NewWithState(s *SymbolTable, constants []object.Object) *Compiler {
-	compiler := New()
-	compiler.symbolTable = s
-	compiler.constants = constants
-	return compiler
+func WithSymbolTable(s *SymbolTable) CompilerOption {
+	return func(c *Compiler) {
+		c.symbolTable = s
+	}
+}
+
+func WithConstants(constants []object.Object) CompilerOption {
+	return func(c *Compiler) {
+		c.constants = constants
+	}
 }
 
 func (c *Compiler) Compile(node ast.Node) error {

@@ -30,14 +30,16 @@ var True = &object.Boolean{Value: true}
 var False = &object.Boolean{Value: false}
 var Null = &object.Null{}
 
-func New(bytecode *compiler.Bytecode) *VM {
+type VMOptions func(*VM)
+
+func New(bytecode *compiler.Bytecode, opts ...VMOptions) *VM {
 	mainFn := &object.CompiledFunction{
 		Instructions: bytecode.Instructions,
 	}
 	mainFrame := NewFrame(mainFn, 0)
 	frames := make([]*Frame, MaxFrames)
 	frames[0] = mainFrame
-	return &VM{
+	vm := &VM{
 		constants: bytecode.Constants,
 
 		stack:        make([]object.Object, StackSize),
@@ -48,12 +50,17 @@ func New(bytecode *compiler.Bytecode) *VM {
 
 		globals: make([]object.Object, GlobalsSize),
 	}
+
+	for _, opt := range opts {
+		opt(vm)
+	}
+	return vm
 }
 
-func NewWithGlobalsStore(bytecode *compiler.Bytecode, s []object.Object) *VM {
-	vm := New(bytecode)
-	vm.globals = s
-	return vm
+func WithGlobalsStore(s []object.Object) VMOptions {
+	return func(vm *VM) {
+		vm.globals = s
+	}
 }
 
 func (vm *VM) Run() error {
