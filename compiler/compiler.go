@@ -31,6 +31,14 @@ type Compiler struct {
 
 type CompilerOption func(*Compiler)
 
+// NOTE: I choose to do this here in order to avoid symbolTable dependence on object package
+// but maybe this should be there and be called by default by NewSymbolTable
+func defineBuiltins(s *SymbolTable) {
+	for idx, builtin := range object.Builtins {
+		s.DefineBuiltin(idx, builtin.Name)
+	}
+}
+
 func New(opts ...CompilerOption) *Compiler {
 	mainScope := CompilationScope{
 		instructions:        code.Instructions{},
@@ -39,9 +47,7 @@ func New(opts ...CompilerOption) *Compiler {
 	}
 
 	symbolTable := NewSymbolTable()
-	for idx, builtin := range object.Builtins {
-		symbolTable.DefineBuiltin(idx, builtin.Name)
-	}
+	defineBuiltins(symbolTable)
 
 	compiler := &Compiler{
 		constants:   []object.Object{},
@@ -58,6 +64,7 @@ func New(opts ...CompilerOption) *Compiler {
 func WithSymbolTable(s *SymbolTable) CompilerOption {
 	return func(c *Compiler) {
 		c.symbolTable = s
+		defineBuiltins(s)
 	}
 }
 
