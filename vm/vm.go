@@ -70,6 +70,17 @@ func (vm *VM) Run() error {
 		op = code.Opcode(instructions[ip])
 
 		switch op {
+		case code.OpGetBuiltin:
+			builtinIdx := code.ReadUint8(instructions[ip+1:])
+			vm.currentFrame().ip += 1
+
+			definition := object.Builtins[builtinIdx]
+
+			err := vm.push(definition.Builtin)
+			if err != nil {
+				return err
+			}
+
 		case code.OpConstant:
 			constIndex := code.ReadUint16(instructions[ip+1:])
 			vm.currentFrame().ip += 2
@@ -182,7 +193,7 @@ func (vm *VM) Run() error {
 			numArgs := code.ReadUint8(instructions[ip+1:])
 			vm.currentFrame().ip += 1
 
-			err := vm.callFunction(int(numArgs))
+			err := vm.executeCall(int(numArgs))
 			if err != nil {
 				return err
 			}
@@ -214,11 +225,33 @@ func (vm *VM) Run() error {
 	return nil
 }
 
-func (vm *VM) callFunction(nbArgs int) error {
-	fn, ok := vm.stack[vm.stackPointer-1-int(nbArgs)].(*object.CompiledFunction)
-	if !ok {
-		return fmt.Errorf("calling non-function")
+func (vm *VM) executeCall(nbArgs int) error {
+	callee := vm.stack[vm.stackPointer-1-int(nbArgs)]
+	switch fn := callee.(type) {
+	case *object.CompiledFunction:
+		return vm.callFunction(fn, nbArgs)
+	case *object.Builtin:
+		return vm.callBuiltin(fn, nbArgs)
+	default:
+		return fmt.Errorf("calling non-function and non-built-in")
 	}
+}
+
+func (vm *VM) callBuiltin(fn *object.Builtin, nbArgs int) error {
+	args := vm.stack[vm.stackPointer-nbArgs : vm.stackPointer]
+
+	res := fn.Fn(args...)
+	vm.stackPointer = vm.stackPointer - nbArgs - 1
+
+	if res != nil {
+		vm.push(res)
+	} else {
+		vm.push(Null)
+	}
+	return nil
+}
+
+func (vm *VM) callFunction(fn *object.CompiledFunction, nbArgs int) error {
 	if nbArgs != fn.NumParameters {
 		return fmt.Errorf("wrong number of arguments: want=%d, got=%d", fn.NumParameters, nbArgs)
 	}
